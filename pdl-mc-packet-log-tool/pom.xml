@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.pdlpdl</groupId>
         <artifactId>pdl-mc-packet-log-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <artifactId>pdl-mc-packet-log-tool</artifactId>
