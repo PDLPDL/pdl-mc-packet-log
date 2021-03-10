@@ -21,7 +21,7 @@
 
     <groupId>com.pdlpdl</groupId>
     <artifactId>pdl-mc-packet-log-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
 
     <packaging>pom</packaging>
 
@@ -239,7 +239,7 @@
         <connection>scm:git:git@github.com:PDLPDL/pdl-mc-packet-log.git</connection>
         <developerConnection>scm:git:git@github.com:PDLPDL/pdl-mc-packet-log.git</developerConnection>
         <url>git@github.com:PDLPDL/pdl-mc-packet-log.git</url>
-        <tag>HEAD</tag>
+        <tag>pdl-mc-packet-log-parent-1.0.1</tag>
     </scm>
 
 
