@@ -30,6 +30,8 @@
         Parent Module for the library, and utilities, for reading and writting Minecraft Packet log files.
     </description>
 
+    <url>https://github.com/PDLPDL/pdl-mc-packet-log</url>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
