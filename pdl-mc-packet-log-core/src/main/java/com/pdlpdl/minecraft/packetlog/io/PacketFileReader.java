@@ -20,7 +20,6 @@ import com.github.steveice10.packetlib.io.NetInput;
 import com.github.steveice10.packetlib.io.stream.StreamNetInput;
 import com.github.steveice10.packetlib.packet.Packet;
 import com.pdlpdl.minecraft.packetlog.model.TracedPacket;
-import sun.misc.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -98,7 +97,7 @@ public class PacketFileReader implements AutoCloseable {
         }
 
         try {
-            byte[] rawPacket = IOUtils.readFully(this.upstream, size, true);
+            byte[] rawPacket = this.readFully(this.upstream, size);
 
             return rawPacket;
         } catch (EOFException eofExc) {
@@ -130,5 +129,26 @@ public class PacketFileReader implements AutoCloseable {
         }
 
         return (Packet) constructor.newInstance();
+    }
+
+    private byte[] readFully(InputStream inputStream, int size) throws IOException {
+        byte[] buffer;
+
+        buffer = new byte[size];
+
+        int remaining = size;
+        int offset = 0;
+        while (remaining > 0) {
+            int readCount = inputStream.read(buffer, offset, remaining);
+
+            if (readCount == -1) {
+                throw new EOFException("Required " + size + " bytes; only read " + (size - remaining));
+            }
+
+            remaining -= readCount;
+            offset += readCount;
+        }
+
+        return buffer;
     }
 }
