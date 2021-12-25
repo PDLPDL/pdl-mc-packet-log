@@ -36,10 +36,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <commons-cli.version>1.4</commons-cli.version>
-        <minecraft-protocol-lib.version>1.18-1</minecraft-protocol-lib.version>
+        <minecraft-protocol-lib.version>1.18-2</minecraft-protocol-lib.version>
         <netty.version>4.1.45.Final</netty.version>
         <packetlib.version>2.1</packetlib.version>
         <slf4j.version>1.7.30</slf4j.version>
+
+        <gpg.pinentry-mode>loopback</gpg.pinentry-mode>
     </properties>
 
     <licenses>
@@ -82,7 +84,7 @@
 
             <dependency>
                 <groupId>com.github.steveice10</groupId>
-                <artifactId>MCProtocolLib</artifactId>
+                <artifactId>mcprotocollib</artifactId>
                 <version>${minecraft-protocol-lib.version}</version>
             </dependency>
             <dependency>
@@ -198,7 +200,7 @@
                         <configuration>
                             <gpgArguments>
                                 <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
+                                <arg>${gpg.pinentry-mode}</arg>
                             </gpgArguments>
                             <passphraseServerId>${gpg.serverId}</passphraseServerId>
                         </configuration>
@@ -265,5 +267,18 @@
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>local-gpg-agent</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.pinentry-mode>default</gpg.pinentry-mode>
+            </properties>
+        </profile>
+    </profiles>
+
 
 </project>
