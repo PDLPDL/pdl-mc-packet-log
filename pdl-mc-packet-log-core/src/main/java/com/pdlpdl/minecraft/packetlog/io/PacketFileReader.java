@@ -16,17 +16,23 @@
 
 package com.pdlpdl.minecraft.packetlog.io;
 
-import com.github.steveice10.packetlib.io.NetInput;
-import com.github.steveice10.packetlib.io.stream.StreamNetInput;
+import com.github.steveice10.mc.protocol.codec.MinecraftCodecHelper;
 import com.github.steveice10.packetlib.packet.Packet;
 import com.pdlpdl.minecraft.packetlog.model.TracedPacket;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 /**
  * FILE FORMAT:
@@ -43,17 +49,21 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class PacketFileReader implements AutoCloseable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PacketFileReader.class);
+
     private final InputStream upstream;
-    private final StreamNetInput reader;
+    private final MinecraftCodecHelper minecraftCodecHelper;
+    private final DataInputStream dataInputStream;
 
     public PacketFileReader(InputStream upstream) {
         this.upstream = upstream;
-        this.reader = new StreamNetInput(this.upstream);
+        this.minecraftCodecHelper = new MinecraftCodecHelper(Int2ObjectMaps.EMPTY_MAP, Collections.EMPTY_MAP);
+        this.dataInputStream = new DataInputStream(upstream);
     }
 
     @Override
     public void close() throws IOException {
-        this.reader.close();
+        this.dataInputStream.close();
     }
 
     public TracedPacket read() throws IOException {
@@ -62,15 +72,24 @@ public class PacketFileReader implements AutoCloseable {
         byte[] rawPayload = this.readRawPacket();
 
         if (rawPayload != null) {
-            ByteArrayInputStream buffer = new ByteArrayInputStream(rawPayload);
-            NetInput netInput = new StreamNetInput(buffer);
+            ByteBuf byteBuf = Unpooled.buffer();
+            byteBuf.writeBytes(rawPayload);
 
-            long timestamp = netInput.readLong();
-            String className = netInput.readString();
+            try {
+                long timestamp = byteBuf.readLong();
+                String className = this.readString(byteBuf);
 
-            Packet packet = this.processPayload(className, netInput);
+                Packet packet = this.processPayload(className, byteBuf);
 
-            result = new TracedPacket(packet, timestamp);
+                if (byteBuf.readableBytes() != 0) {
+                    LOG.warn("PACKET appears to have only been partially read: class-name={}; total-size={}; remaining={}",
+                            className, rawPayload.length, byteBuf.readableBytes());
+                }
+
+                result = new TracedPacket(packet, timestamp);
+            } finally {
+                byteBuf.release();
+            }
         }
 
         return result;
@@ -90,7 +109,7 @@ public class PacketFileReader implements AutoCloseable {
         int size;
 
         try {
-            size = this.reader.readInt();
+            size = this.dataInputStream.readInt();
         } catch (EOFException eofExc) {
             // Happens normally on EOF.  NOTE we don't distinguish 0 bytes from < 4 here.
             return null;
@@ -105,16 +124,21 @@ public class PacketFileReader implements AutoCloseable {
         }
     }
 
+    private String readString(ByteBuf byteBuf) {
+        int len = byteBuf.readInt();
+        byte[] copyBuf = new byte[len];
+        byteBuf.readBytes(copyBuf);
+
+        return new String(copyBuf, StandardCharsets.UTF_8);
+    }
+
     @SuppressWarnings("rawtypes")
-    private Packet processPayload(String packetClassName, NetInput netInput) throws IOException {
+    private Packet processPayload(String packetClassName, ByteBuf byteBuf) throws IOException {
         try {
             Class packetClass = Class.forName(packetClassName);
-            Packet packet = createPacketInstance(packetClass);
-            packet.read(netInput);
+            Packet packet = createPacketInstance(packetClass, byteBuf);
 
             return packet;
-        } catch (EOFException eofExc) {
-            throw new RuntimeException("Unexpected EOF while reading packet");
         } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | ClassNotFoundException exc) {
             throw new RuntimeException("Problem processing packet with class name " + packetClassName, exc);
         }
@@ -122,13 +146,13 @@ public class PacketFileReader implements AutoCloseable {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private Packet createPacketInstance(Class clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor constructor = clazz.getDeclaredConstructor();
+    private Packet createPacketInstance(Class clazz, ByteBuf byteBuf) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor constructor = clazz.getDeclaredConstructor(ByteBuf.class, MinecraftCodecHelper.class);
         if(!constructor.isAccessible()) {
             constructor.setAccessible(true);
         }
 
-        return (Packet) constructor.newInstance();
+        return (Packet) constructor.newInstance(byteBuf, this.minecraftCodecHelper);
     }
 
     private byte[] readFully(InputStream inputStream, int size) throws IOException {

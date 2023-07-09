@@ -27,7 +27,7 @@
 
     <name>PDL Minecraft Packet Log ::: Parent</name>
     <description>
-        Parent Module for the library, and utilities, for reading and writting Minecraft Packet log files.
+        Parent Module for the library, and utilities, for reading and writing Minecraft Packet log files.
     </description>
 
     <url>https://github.com/PDLPDL/pdl-mc-packet-log</url>
@@ -36,9 +36,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <commons-cli.version>1.4</commons-cli.version>
-        <minecraft-protocol-lib.version>1.18.2-1</minecraft-protocol-lib.version>
+        <minecraft-protocol-lib.version>1.19.4-1</minecraft-protocol-lib.version>
         <netty.version>4.1.45.Final</netty.version>
-        <packetlib.version>2.1</packetlib.version>
+        <packetlib.version>3.0</packetlib.version>
         <slf4j.version>1.7.30</slf4j.version>
 
         <gpg.pinentry-mode>loopback</gpg.pinentry-mode>
@@ -83,12 +83,12 @@
             </dependency>
 
             <dependency>
-                <groupId>com.github.GeyserMC</groupId>
+                <groupId>com.github.steveice10</groupId>
                 <artifactId>mcprotocollib</artifactId>
                 <version>${minecraft-protocol-lib.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.GeyserMC</groupId>
+                <groupId>com.github.steveice10</groupId>
                 <artifactId>packetlib</artifactId>
                 <version>${packetlib.version}</version>
                 <exclusions>

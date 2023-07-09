@@ -45,7 +45,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.GeyserMC</groupId>
+            <groupId>com.github.steveice10</groupId>
             <artifactId>mcprotocollib</artifactId>
         </dependency>
 

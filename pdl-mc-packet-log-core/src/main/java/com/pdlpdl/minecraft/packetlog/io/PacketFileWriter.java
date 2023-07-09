@@ -16,20 +16,23 @@
 
 package com.pdlpdl.minecraft.packetlog.io;
 
-import com.github.steveice10.packetlib.io.NetOutput;
-import com.github.steveice10.packetlib.io.stream.StreamNetOutput;
+import com.github.steveice10.mc.protocol.codec.MinecraftCodecHelper;
+import com.github.steveice10.mc.protocol.codec.MinecraftPacket;
 import com.github.steveice10.packetlib.packet.Packet;
 
-import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * FILE FORMAT:
  *      PACKET_RECORD ...
  *
  *      PACKET_RECORD =
- *          SIZE (4 bytes - length of the serialized packet that follows)
+ *          SIZE (4 bytes - length of the rest of the packet excluding the size itself)
  *          TIMESTAMP (8 bytes)
  *          PACKET_CLASS_NAME (string: see packetlib)
  *          SERIALIZED_PACKET
@@ -37,20 +40,28 @@ import java.io.OutputStream;
  * TODO:
  *      * Consider a dictionary for class names (e.g. "REGISTER_CLASSNAME_RECORD" with RECORD_ID and PACKET_NAME)
  */
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+
+
 public class PacketFileWriter implements AutoCloseable {
 
     private final OutputStream downstream;
-    private final StreamNetOutput writer;
+    private final MinecraftCodecHelper minecraftCodecHelper;
+    private final DataOutputStream dataOutputStream;
 
     public PacketFileWriter(OutputStream downstream) {
         this.downstream = downstream;
-        this.writer = new StreamNetOutput(this.downstream);
+        this.minecraftCodecHelper = new MinecraftCodecHelper(Int2ObjectMaps.EMPTY_MAP, Collections.EMPTY_MAP);
+        this.dataOutputStream = new DataOutputStream(downstream);
     }
 
     @Override
     public void close() throws IOException {
-        this.writer.flush();
-        this.writer.close();
+        this.dataOutputStream.flush();
+        this.dataOutputStream.close();
     }
 
     public void write(Packet packet, long timestamp) throws IOException {
@@ -59,12 +70,12 @@ public class PacketFileWriter implements AutoCloseable {
         //
         // Write the packet length, then the raw packet content
         //
-        this.writer.writeInt(rawPacket.length);
-        this.writer.write(rawPacket);
+        this.dataOutputStream.writeInt(rawPacket.length);
+        this.dataOutputStream.write(rawPacket);
     }
 
     public void flush() throws IOException {
-        this.writer.flush();
+        this.dataOutputStream.flush();
     }
 
 //========================================
@@ -83,32 +94,36 @@ public class PacketFileWriter implements AutoCloseable {
         //
         // Prepare writing to buffer
         //
-        ByteArrayOutputStream bufferOutput = new ByteArrayOutputStream();
-        NetOutput netToBuffer = new StreamNetOutput(bufferOutput);
+        ByteBuf buf = Unpooled.buffer();
 
+        try {
+            //
+            // Write the timestamp
+            //
+            buf.writeLong(timestamp);
 
-        //
-        // Write the timestamp
-        //
-        netToBuffer.writeLong(timestamp);
+            //
+            // Write the PACKET_CLASS_NAME
+            //
+            String packetName = packet.getClass().getName();
+            buf.writeInt(packetName.length());
+            buf.writeCharSequence(packetName, StandardCharsets.UTF_8);
 
-        //
-        // Write the PACKET_CLASS_NAME
-        //
-        String packetName = packet.getClass().getName();
-        netToBuffer.writeString(packetName);
+            //
+            // Write the PACKET_SERIALIZED
+            //
+            MinecraftPacket mp = (MinecraftPacket) packet;
+            mp.serialize(buf, this.minecraftCodecHelper);
 
-        //
-        // Write the PACKET_SERIALIZED
-        //
-        packet.write(netToBuffer);
+            // Copy out
+            byte[] result = Arrays.copyOfRange(buf.array(), 0, buf.readableBytes());
 
-        // Make sure the buffered output is complete.
-        netToBuffer.flush();
-
-        //
-        // Return the raw data.
-        //
-        return bufferOutput.toByteArray();
+            //
+            // Return the raw data.
+            //
+            return result;
+        } finally {
+            buf.release();
+        }
     }
 }

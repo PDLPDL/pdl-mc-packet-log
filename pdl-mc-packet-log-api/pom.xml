@@ -40,9 +40,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.GeyserMC</groupId>
+            <groupId>com.github.steveice10</groupId>
             <artifactId>packetlib</artifactId>
-            <version>1.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
