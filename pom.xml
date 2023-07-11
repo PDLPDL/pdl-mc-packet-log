@@ -36,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <commons-cli.version>1.4</commons-cli.version>
-        <minecraft-protocol-lib.version>1.19.4-1</minecraft-protocol-lib.version>
+        <minecraft-protocol-lib.version>1.20-2.ASN</minecraft-protocol-lib.version>
         <netty.version>4.1.45.Final</netty.version>
         <packetlib.version>3.0</packetlib.version>
         <slf4j.version>1.7.30</slf4j.version>
