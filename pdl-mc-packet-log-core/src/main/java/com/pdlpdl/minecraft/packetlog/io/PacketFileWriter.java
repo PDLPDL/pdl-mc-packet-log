@@ -16,10 +16,6 @@
 
 package com.pdlpdl.minecraft.packetlog.io;
 
-import com.github.steveice10.mc.protocol.codec.MinecraftCodecHelper;
-import com.github.steveice10.mc.protocol.codec.MinecraftPacket;
-import com.github.steveice10.packetlib.packet.Packet;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,18 +39,17 @@ import java.util.Collections;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.protocol.codec.MinecraftPacket;
 
 
 public class PacketFileWriter implements AutoCloseable {
 
     private final OutputStream downstream;
-    private final MinecraftCodecHelper minecraftCodecHelper;
     private final DataOutputStream dataOutputStream;
 
     public PacketFileWriter(OutputStream downstream) {
         this.downstream = downstream;
-        this.minecraftCodecHelper = new MinecraftCodecHelper(Int2ObjectMaps.EMPTY_MAP, Collections.EMPTY_MAP);
         this.dataOutputStream = new DataOutputStream(downstream);
     }
 
@@ -113,7 +108,7 @@ public class PacketFileWriter implements AutoCloseable {
             // Write the PACKET_SERIALIZED
             //
             MinecraftPacket mp = (MinecraftPacket) packet;
-            mp.serialize(buf, this.minecraftCodecHelper);
+            mp.serialize(buf);
 
             // Copy out
             byte[] result = Arrays.copyOfRange(buf.array(), 0, buf.readableBytes());

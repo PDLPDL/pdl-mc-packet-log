@@ -16,8 +16,8 @@
 
 package com.pdlpdl.minecraft.packetlog.io;
 
-import com.github.steveice10.packetlib.packet.Packet;
 import com.pdlpdl.minecraft.packetlog.api.Clock;
+import org.geysermc.mcprotocollib.network.packet.Packet;
 
 import java.io.IOException;
 import java.io.OutputStream;

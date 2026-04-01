@@ -36,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <commons-cli.version>1.4</commons-cli.version>
-        <minecraft-protocol-lib.version>1.20-2.ASN</minecraft-protocol-lib.version>
+        <minecraft-protocol-lib.version>1.21.5-1</minecraft-protocol-lib.version>
         <netty.version>4.1.45.Final</netty.version>
         <packetlib.version>3.0</packetlib.version>
         <slf4j.version>1.7.30</slf4j.version>
@@ -83,18 +83,17 @@
             </dependency>
 
             <dependency>
-                <groupId>com.github.steveice10</groupId>
-                <artifactId>mcprotocollib</artifactId>
+                <groupId>org.geysermc.mcprotocollib</groupId>
+                <artifactId>protocol</artifactId>
                 <version>${minecraft-protocol-lib.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.steveice10</groupId>
-                <artifactId>packetlib</artifactId>
-                <version>${packetlib.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>io.netty</groupId>
                         <artifactId>netty-all</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.netty.incubator</groupId>
+                        <artifactId>netty-incubator-transport-native-io_uring</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -265,6 +264,11 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+
+        <repository>
+            <id>opencollab</id>
+            <url>https://repo.opencollab.dev/maven-releases/</url>
         </repository>
     </repositories>
 

@@ -16,7 +16,7 @@
 
 package com.pdlpdl.minecraft.packetlog.model;
 
-import com.github.steveice10.packetlib.packet.Packet;
+import org.geysermc.mcprotocollib.network.packet.Packet;
 
 public class TracedPacket {
     private final Packet packet;

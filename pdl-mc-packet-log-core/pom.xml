@@ -45,19 +45,12 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.steveice10</groupId>
-            <artifactId>packetlib</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-all</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.geysermc.mcprotocollib</groupId>
+            <artifactId>protocol</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>com.github.steveice10</groupId>
-            <artifactId>mcprotocollib</artifactId>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
         </dependency>
     </dependencies>
 

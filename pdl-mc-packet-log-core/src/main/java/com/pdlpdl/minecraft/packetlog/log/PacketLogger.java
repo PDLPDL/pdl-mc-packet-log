@@ -16,8 +16,8 @@
 
 package com.pdlpdl.minecraft.packetlog.log;
 
-import com.github.steveice10.packetlib.packet.Packet;
 import com.pdlpdl.minecraft.packetlog.io.ClockBasedPacketFileWriter;
+import org.geysermc.mcprotocollib.network.packet.Packet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

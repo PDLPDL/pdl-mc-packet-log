@@ -16,12 +16,10 @@
 
 package com.pdlpdl.minecraft.packetlog.io;
 
-import com.github.steveice10.mc.protocol.codec.MinecraftCodecHelper;
-import com.github.steveice10.packetlib.packet.Packet;
 import com.pdlpdl.minecraft.packetlog.model.TracedPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import org.geysermc.mcprotocollib.network.packet.Packet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,6 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 
 /**
  * FILE FORMAT:
@@ -52,12 +49,10 @@ public class PacketFileReader implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PacketFileReader.class);
 
     private final InputStream upstream;
-    private final MinecraftCodecHelper minecraftCodecHelper;
     private final DataInputStream dataInputStream;
 
     public PacketFileReader(InputStream upstream) {
         this.upstream = upstream;
-        this.minecraftCodecHelper = new MinecraftCodecHelper(Int2ObjectMaps.EMPTY_MAP, Collections.EMPTY_MAP);
         this.dataInputStream = new DataInputStream(upstream);
     }
 
@@ -147,12 +142,12 @@ public class PacketFileReader implements AutoCloseable {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private Packet createPacketInstance(Class clazz, ByteBuf byteBuf) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor constructor = clazz.getDeclaredConstructor(ByteBuf.class, MinecraftCodecHelper.class);
+        Constructor constructor = clazz.getDeclaredConstructor(ByteBuf.class);
         if(!constructor.isAccessible()) {
             constructor.setAccessible(true);
         }
 
-        return (Packet) constructor.newInstance(byteBuf, this.minecraftCodecHelper);
+        return (Packet) constructor.newInstance(byteBuf);
     }
 
     private byte[] readFully(InputStream inputStream, int size) throws IOException {
