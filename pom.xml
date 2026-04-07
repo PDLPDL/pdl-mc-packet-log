@@ -21,7 +21,7 @@
 
     <groupId>com.pdlpdl</groupId>
     <artifactId>pdl-mc-packet-log-parent</artifactId>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>3.2.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -36,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <commons-cli.version>1.4</commons-cli.version>
-        <minecraft-protocol-lib.version>1.21.5-1</minecraft-protocol-lib.version>
+        <minecraft-protocol-lib.version>26.1-20260404.063343-16</minecraft-protocol-lib.version>
         <netty.version>4.1.45.Final</netty.version>
         <packetlib.version>3.0</packetlib.version>
         <slf4j.version>1.7.30</slf4j.version>
@@ -260,7 +260,7 @@
 
         <repository>
             <id>opencollab</id>
-            <url>https://repo.opencollab.dev/maven-releases/</url>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
         </repository>
     </repositories>
 
